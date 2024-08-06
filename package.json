@@ -2,9 +2,11 @@
   "name": "e-commerce",
   "version": "1.0.0",
   "description": "changed readme",
+  "homepage": "https://github.com/Artbal95/e-commerce",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently --kill-others \"yarn --cwd ./backend dev\" \"yarn --cwd ./frontend dev\""
+    "dev": "concurrently --kill-others \"yarn --cwd ./backend dev\" \"yarn --cwd ./frontend dev\"",
+    "install": "yarn --cwd ./backend && yarn --cwd ./frontend"
   },
   "keywords": [],
   "author": "",

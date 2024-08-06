@@ -16,6 +16,7 @@ jspm_packages/
 # Build output
 dist/
 build/
+frontBuild/
 
 # Temporary files
 *.tmp
