@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "npm run build && node -r tsconfig-paths/register build/index.js",
+    "start": "node build/index.js",
     "dev": "nodemon",
-    "build": "npm run compile && npm run post:compile"
+    "build": "rimraf build && tsc"
   },
   "keywords": [],
   "author": "",
@@ -28,9 +28,11 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/nodemailer": "^6.4.15",
     "@types/uuid": "^10.0.0",
+    "@ef-carbon/tspm": "^2.2.5",
     "@types/express": "^4.17.21",
     "@types/node": "^20.12.7",
     "nodemon": "^3.1.4",
+    "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
     "typescript": "5.2.2"
   }

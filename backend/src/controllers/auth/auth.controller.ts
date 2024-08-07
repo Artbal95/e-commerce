@@ -3,16 +3,16 @@ import jwt from "jsonwebtoken"; */
 import dotenv from "dotenv";
 import { Request, Response } from "express";
 import {
-  SignupSchema,
-  ResetPasswordSchema,
-  ForgotPasswordSchema,
+    RegisterSchema,
+    ResetPasswordSchema,
+    ForgotPasswordSchema
 } from "../../schema/auth";
 import {
-  authGetUserByEmail,
-  authSignUp,
-  authUpdateUser,
-  getUserIdByCode,
-  createRecoverCode,
+    authGetUserByEmail,
+    authSignUp,
+    authUpdateUser,
+    getUserIdByCode,
+    createRecoverCode,
 } from "../../services/auth";
 // import {importUserToDatabase, readUserFromDatabase} from "../services/auth.service";
 import forgot_password_template from "../../templates/email";
@@ -24,10 +24,7 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
-export const signup = async (
-  req: Request<{}, {}, SignupSchema>,
-  res: Response
-) => {
+export const register = async (req: Request<{}, {}, RegisterSchema>, res: Response) => {
   const { email, password, username } = req.body;
   const candidate = await authGetUserByEmail(email);
 
@@ -138,7 +135,7 @@ export const sendLink = async (
     res.status(201).json({
       message: "Email send successfully",
     });
-        
+
   }
 };
 

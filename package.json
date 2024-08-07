@@ -6,14 +6,12 @@
   "main": "index.js",
   "scripts": {
     "dev": "concurrently --kill-others \"yarn --cwd ./backend dev\" \"yarn --cwd ./frontend dev\"",
-    "predeploy" : "yarn --cwd ./frontend build",
-    "deploy" : "gh-pages -d ./frontend/dist"
+    "install": "yarn --cwd ./backend && yarn --cwd ./frontend"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "concurrently": "^8.2.2",
-    "gh-pages": "^6.1.1"
+    "concurrently": "^8.2.2"
   }
 }
