@@ -2,7 +2,7 @@ import { hashSync } from "bcrypt";/*
 import jwt from "jsonwebtoken"; */
 import dotenv from "dotenv";
 import { Request, Response } from "express";
-import {SignupSchema} from "../../schema/auth";
+import {RegisterSchema} from "../../schema/auth";
 import {authGetUserByEmail, authSignUp} from "../../services/auth";
 // import {importUserToDatabase, readUserFromDatabase} from "../services/auth.service";
 
@@ -10,7 +10,7 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
-export const signup = async (req: Request<{}, {}, SignupSchema>, res: Response) => {
+export const register = async (req: Request<{}, {}, RegisterSchema>, res: Response) => {
   const { email, password, username } = req.body;
   const candidate = await authGetUserByEmail(email);
 

@@ -8,7 +8,7 @@ import {
     IsOptional,
 } from "class-validator";
 
-export class SignupSchema {
+export class RegisterSchema {
     @IsString()
     @MinLength(1)
     @MaxLength(50)
@@ -26,7 +26,7 @@ export class SignupSchema {
     password: string;
 }
 
-export class SigninSchema {
+export class LoginSchema {
     @IsOptional()
     @IsString()
     @MinLength(1, { message: "Username must be at least 1 character long." })
