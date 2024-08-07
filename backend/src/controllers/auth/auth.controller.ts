@@ -1,24 +1,19 @@
-import { hashSync } from "bcrypt"; /*
-import jwt from "jsonwebtoken"; */
+import { hashSync } from "bcrypt";
 import dotenv from "dotenv";
 import { Request, Response } from "express";
-import {
-    RegisterSchema,
-    ResetPasswordSchema,
-    ForgotPasswordSchema
-} from "../../schema/auth";
+import {RegisterSchema, ResetPasswordSchema, ForgotPasswordSchema} from "../../schema/auth";
 import {
     authGetUserByEmail,
     authSignUp,
     authUpdateUser,
     getUserIdByCode,
-    createRecoverCode,
 } from "../../services/auth";
-// import {importUserToDatabase, readUserFromDatabase} from "../services/auth.service";
-import forgot_password_template from "../../templates/email";
-import { sendEmail } from "../../send.email.service/send.email";
 import { v4 as uuidv4 } from "uuid";
-import { RecoverEntity } from "../../entity/auth";
+import {IError} from "../../types";
+import MailEnum from "../../enums/mail";
+import forgotPasswordMail from "../../constants/forgotPasswordMail";
+import {FR_RECOVER_URL} from "../../config/environment";
+import {sendEmail} from "../../services/mail";
 
 dotenv.config();
 
@@ -114,28 +109,33 @@ export const sendLink = async (
   const code = uuidv4();
   const { email } = req.body;
 
-  const candidate = await authGetUserByEmail(email);
+  try {
+    const candidate = await authGetUserByEmail(email);
 
-  if (!candidate) {
-    res.status(404).json({ message: "User not found!" });
-  } else {
-    const result = await createRecoverCode({ code, user_id: candidate.id });
-    if (!result) {
-      res.status(500).json({ message: "Internal server error!" });
-    }
-    const success = await sendEmail(
-      email,
-      `http://localhost:3000/auth/recover?code=${code}`,
-      candidate.username,
-      forgot_password_template
-    );
-    if (!success) {
-      res.status(500).json({ message: "Could not send email!" });
-    }
-    res.status(201).json({
-      message: "Email send successfully",
-    });
+    if (candidate) {
+      res.status(404).json({ message: "User not found!" });
+    } else {
+      // await createRecoverCode({ code, user_id: candidate.id });
 
+      const recoverUrl = new URL(FR_RECOVER_URL)
+      recoverUrl.searchParams.set("code", code)
+
+      const html = forgotPasswordMail(recoverUrl.href, "candidate.username");
+
+      await sendEmail({
+        to: email,
+        from: `"Yura Khachatryan" <yurakhachatryan3@gmail.com>`,
+        subject: MailEnum.FORGOT_PASSWORD_SUBJECT,
+        html,
+      })
+
+      res.status(201).json({
+        message: "Email send successfully",
+      });
+    }
+  } catch (e: unknown) {
+    const { message } = e as IError
+    res.status(500).json({ message: "INTERNAL_SERVER_ERROR", currentMsg: message });
   }
 };
 
