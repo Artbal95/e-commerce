@@ -1,3 +1,4 @@
 import AuthEntity from "./auth.entity";
+import RecoverEntity from "./recover.entity";
 
-export default AuthEntity;
+export { AuthEntity, RecoverEntity };
