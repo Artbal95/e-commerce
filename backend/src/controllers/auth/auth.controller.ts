@@ -1,90 +1,66 @@
-import { hashSync } from "bcrypt";/*
-import jwt from "jsonwebtoken"; */
-import dotenv from "dotenv";
-import { Request, Response } from "express";
-import {RegisterSchema} from "../../schema/auth";
-import {authGetUserByEmail, authSignUp} from "../../services/auth";
-// import {importUserToDatabase, readUserFromDatabase} from "../services/auth.service";
+import express, { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET as string;
+const app = express();
+app.use(express.json());
 
-export const register = async (req: Request<{}, {}, RegisterSchema>, res: Response) => {
-  const { email, password, username } = req.body;
-  const candidate = await authGetUserByEmail(email);
+const SECRET_KEY = process.env.JWT_SECRET as string;
+const REFRESH_SECRET_KEY = process.env.JWT_REFRESH_SECRET as string;
 
-  if (candidate) {
-    res.status(400).json({ message: "This mail already exists" });
-  } else {
-    const hashedPassword = hashSync(password, 10);
-    const user = await authSignUp({ email, password: hashedPassword, username });
-    console.log({user})
-    res.status(201).json({
-      message: "Signed up successfully",
-      access_token: user.email
-    })
-  }
-};
+// Mock user data with hashed password ("password123")
+const users = [
+    { username: 'user1', password: '$2a$10$7aBcXc7uTz2xxN4e5wMePeCkQWyEoZGehCz60GFECqvKStjO.OsD2' }  
+];
 
-/* const signin = async (req: Request, res: Response) => {
-  const { email, password, username } = req.body;
-  try {
-    // readUserFromDatabase
+// Generate tokens
+function generateTokens(username: string) {
+    const accessToken = jwt.sign({ username }, SECRET_KEY, { expiresIn: '1m' });
+    const refreshToken = jwt.sign({ username }, REFRESH_SECRET_KEY, { expiresIn: '1y' });
+    return { accessToken, refreshToken };
+}
 
-    // this part will be deleted after added service
-    //---------->
-    interface User {
-      email: string;
-      username: string;
-      password: string;
-    }
+// Login route
+app.post('/login', async (req: Request, res: Response) => {
+    const { username, password } = req.body;
 
-    const user: User = {
-      username: "testuser-1",
-      email: "username@example.com",
-      password: "Testpassword123",
-    };
-    //<----------
-
+    const user = users.find(u => u.username === username);
     if (!user) {
-      throw new Error("User not found");
+        return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const hashedPassword = await bcrypt.hash(user.password, 10);
-    const isSame = await bcrypt.compare(password, hashedPassword);
-
-    if (!isSame) {
-      throw new Error("Incorrect password");
+    const passwordIsValid = await bcrypt.compare(password, user.password);
+    if (!passwordIsValid) {
+        return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign(
-      {
-        email: user.email,
-        username: user.username,
-      },
-      JWT_SECRET,
-      {
-        expiresIn: "1h",
-      }
-    );
+    const tokens = generateTokens(username);
+    return res.json(tokens);
+});
 
-    res.status(200).send({
-      message: "You have successfully signed in!",
-      token: token,
+// Registration route (optional)
+app.post('/register', async (req: Request, res: Response) => {
+    const { username, password } = req.body;
+    
+    const userExists = users.find(u => u.username === username);
+    if (userExists) {
+        return res.status(400).json({ message: "Username already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    users.push({ username, password: hashedPassword });
+
+    const tokens = generateTokens(username);
+    return res.status(201).json({
+        message: "Registered successfully",
+        ...tokens
     });
-  } catch (err) {
-    let errorMessage;
-    if (email) {
-      errorMessage = "Wrong email or password!";
-    } else if (username) {
-      errorMessage = "Wrong username or password!";
-    }
-    console.error("error", err);
-    res.status(500).send({
-      message: errorMessage,
-    });
-    throw new Error("Something went wrong!");
-  }
-};
- */
+});
+
+// Start the server
+app.listen(5000, () => {
+    console.log('Server running on port 5000');
+});
