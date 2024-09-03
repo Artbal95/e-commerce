@@ -5,9 +5,11 @@
   "homepage": "https://github.com/Artbal95/e-commerce",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently --kill-others \"yarn --cwd ./backend dev\" \"yarn --cwd ./frontend dev\"",
-    "predeploy": "yarn --cwd ./frontend build",
-    "deploy": "gh-pages -d ./frontend/dist"
+    "dev": "concurrently --kill-others \"yarn fr-dev\" \"yarn bk-dev\"",
+    "fr-dev": "yarn --cwd ./frontend dev",
+    "bk-dev": "yarn --cwd ./backend dev",
+    "seeds": "ts-node ./backend/src/seeds/seeds.ts",
+    "postinstall": "yarn --cwd ./frontend && yarn --cwd ./backend"
   },
   "keywords": [],
   "author": "",

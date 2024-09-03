@@ -10,7 +10,7 @@ const myDataSource = new DataSource({
     password: DB_PASSWORD,
     database: "e-commerce",
     entities: [join(__dirname, "../../", "entity/*/*.entity{.ts,.js}")],
-    logging: true,
+    logging: false,
     synchronize: true,
 })
 
