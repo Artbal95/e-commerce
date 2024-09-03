@@ -16,7 +16,8 @@ const validationMiddleware = <T extends object>(Schema: Constructor<T>) => {
 
     if (errors.length > 0) {
       return res.status(400).json({
-        message: "Validation failed.",
+        status: "VALIDATION_ERROR",
+        data: null,
         errors: errors.map((err) => ({
           property: err.property,
           constraints: err.constraints,

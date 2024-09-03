@@ -10,8 +10,8 @@ import {
 
 export class RegisterSchema {
     @IsString()
-    @MinLength(1)
-    @MaxLength(50)
+    @MinLength(1, { message: "Username must be at least 1 character long." })
+    @MaxLength(50, { message: "Username cannot be longer than 50 characters." })
     username: string;
 
     @IsEmail({}, { message: "Email is invalid" })
@@ -27,15 +27,8 @@ export class RegisterSchema {
 }
 
 export class LoginSchema {
-    @IsOptional()
-    @IsString()
-    @MinLength(1, { message: "Username must be at least 1 character long." })
-    @MaxLength(50, { message: "Username cannot be longer than 50 characters." })
-    username?: string;
-
-    @IsOptional()
     @IsEmail({}, { message: "Email is invalid." })
-    email?: string;
+    email: string;
 
     @IsString()
     @MinLength(1, { message: "Password must be at least 1 character long." })
