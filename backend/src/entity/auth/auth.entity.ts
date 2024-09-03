@@ -1,6 +1,8 @@
 import {Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn} from "typeorm"
 
-@Entity()
+@Entity({
+    name: "Users"
+})
 class AuthEntity {
     @PrimaryGeneratedColumn()
     id: number

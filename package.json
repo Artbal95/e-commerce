@@ -8,7 +8,7 @@
     "dev": "concurrently --kill-others \"yarn fr-dev\" \"yarn bk-dev\"",
     "fr-dev": "yarn --cwd ./frontend dev",
     "bk-dev": "yarn --cwd ./backend dev",
-    "seeds": "ts-node ./backend/src/seeds/seeds.ts",
+    "seeds": "npx ts-node ./backend/src/seeds/seeds.ts",
     "postinstall": "yarn --cwd ./frontend && yarn --cwd ./backend"
   },
   "keywords": [],

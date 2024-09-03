@@ -1,12 +1,5 @@
 import "reflect-metadata";
-import {
-    IsString,
-    MinLength,
-    MaxLength,
-    IsEmail,
-    Matches,
-    IsOptional,
-} from "class-validator";
+import {IsString, MinLength, MaxLength, IsEmail, Matches} from "class-validator";
 
 export class RegisterSchema {
     @IsString()
