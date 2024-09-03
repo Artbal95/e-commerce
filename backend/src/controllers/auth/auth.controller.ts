@@ -3,14 +3,12 @@ import jwt from 'jsonwebtoken';
 import bcrypt, {hashSync} from 'bcrypt';
 import {authGetUserByEmail, authSignUp} from "../../services/auth";
 import {LoginSchema, RegisterSchema} from "../../schema/auth";
-
-const SECRET_KEY = process.env.JWT_SECRET as string;
-const REFRESH_SECRET_KEY = process.env.JWT_REFRESH_SECRET as string;
+import generateToken from "../../utils/generateToken";
 
 // Generate tokens
 function generateTokens(username: string, email: string) {
-    const accessToken = jwt.sign({ username, email }, SECRET_KEY, { expiresIn: '1m' });
-    const refreshToken = jwt.sign({ username, email }, REFRESH_SECRET_KEY, { expiresIn: '1y' });
+    const accessToken = generateToken({ username, email }, { expiresIn: '1m' });
+    const refreshToken = generateToken({ username, email }, { expiresIn: '1y' });
     return { accessToken, refreshToken };
 }
 
