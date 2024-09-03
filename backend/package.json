@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node build/index.js",
     "dev": "nodemon",
-    "build": "rimraf build && tsc"
+    "build": "yarn && rimraf build && tsc"
   },
   "keywords": [],
   "author": "",
