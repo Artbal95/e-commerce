@@ -1,90 +1,53 @@
-import { hashSync } from "bcrypt";/*
-import jwt from "jsonwebtoken"; */
-import dotenv from "dotenv";
-import { Request, Response } from "express";
-import {SignupSchema} from "../../schema/auth";
+import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
+import bcrypt, {hashSync} from 'bcrypt';
 import {authGetUserByEmail, authSignUp} from "../../services/auth";
-// import {importUserToDatabase, readUserFromDatabase} from "../services/auth.service";
+import {LoginSchema, RegisterSchema} from "../../schema/auth";
 
-dotenv.config();
+const SECRET_KEY = process.env.JWT_SECRET as string;
+const REFRESH_SECRET_KEY = process.env.JWT_REFRESH_SECRET as string;
 
-const JWT_SECRET = process.env.JWT_SECRET as string;
+// Generate tokens
+function generateTokens(username: string, email: string) {
+    const accessToken = jwt.sign({ username, email }, SECRET_KEY, { expiresIn: '1m' });
+    const refreshToken = jwt.sign({ username, email }, REFRESH_SECRET_KEY, { expiresIn: '1y' });
+    return { accessToken, refreshToken };
+}
 
-export const signup = async (req: Request<{}, {}, SignupSchema>, res: Response) => {
-  const { email, password, username } = req.body;
+// Login route
+export const login = async (req: Request<{}, {}, LoginSchema>, res: Response) => {
+    const { email, password } = req.body;
+
   const candidate = await authGetUserByEmail(email);
 
-  if (candidate) {
-    res.status(400).json({ message: "This mail already exists" });
-  } else {
+    if (!candidate) {
+        return res.status(400).json({ status: "VALIDATION_ERROR", result: null, error: 'Invalid credentials' });
+    }
+
+    const passwordIsValid = await bcrypt.compare(password, candidate.password);
+    if (!passwordIsValid) {
+        return res.status(400).json({ result: null, error: 'Invalid credentials' });
+    }
+
+    const tokens = generateTokens(candidate.username, email);
+    return res.status(200).json({ result: tokens, error: null });
+};
+
+// Registration route (optional)
+export const register = async (req: Request<{}, {}, RegisterSchema>, res: Response) => {
+    const { username, email, password } = req.body;
+
+    const candidate = await authGetUserByEmail(email);
+    if (candidate) {
+        return res.status(400).json({ message: "Username already exists" });
+    }
+
     const hashedPassword = hashSync(password, 10);
-    const user = await authSignUp({ email, password: hashedPassword, username });
-    console.log({user})
-    res.status(201).json({
-      message: "Signed up successfully",
-      access_token: user.email
-    })
-  }
-};
-
-/* const signin = async (req: Request, res: Response) => {
-  const { email, password, username } = req.body;
-  try {
-    // readUserFromDatabase
-
-    // this part will be deleted after added service
-    //---------->
-    interface User {
-      email: string;
-      username: string;
-      password: string;
-    }
-
-    const user: User = {
-      username: "testuser-1",
-      email: "username@example.com",
-      password: "Testpassword123",
-    };
-    //<----------
-
-    if (!user) {
-      throw new Error("User not found");
-    }
-
-    const hashedPassword = await bcrypt.hash(user.password, 10);
-    const isSame = await bcrypt.compare(password, hashedPassword);
-
-    if (!isSame) {
-      throw new Error("Incorrect password");
-    }
-
-    const token = jwt.sign(
-      {
-        email: user.email,
-        username: user.username,
-      },
-      JWT_SECRET,
-      {
-        expiresIn: "1h",
-      }
-    );
-
-    res.status(200).send({
-      message: "You have successfully signed in!",
-      token: token,
+    await authSignUp({ email, password: hashedPassword, username });
+    const tokens = generateTokens(username, email)
+    return res.status(201).json({
+        status: "SUCCESS",
+        data: tokens,
+        error: null
     });
-  } catch (err) {
-    let errorMessage;
-    if (email) {
-      errorMessage = "Wrong email or password!";
-    } else if (username) {
-      errorMessage = "Wrong username or password!";
-    }
-    console.error("error", err);
-    res.status(500).send({
-      message: errorMessage,
-    });
-    throw new Error("Something went wrong!");
-  }
 };
- */
