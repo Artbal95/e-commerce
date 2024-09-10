@@ -2,5 +2,5 @@
 /// <reference types="vite-plugin-svgr/client" />
 
 interface ImportMetaEnv {
-    BASE_URL?: string
+  BASE_URL?: string;
 }
