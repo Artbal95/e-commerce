@@ -1,11 +1,17 @@
 import "reflect-metadata";
-import {IsString, MinLength, MaxLength, IsEmail, Matches} from "class-validator";
+import {
+  IsString,
+  MinLength,
+  MaxLength,
+  IsEmail,
+  Matches,
+} from "class-validator";
 
 export class RegisterSchema {
-    @IsString()
-    @MinLength(1, { message: "Username must be at least 1 character long." })
-    @MaxLength(50, { message: "Username cannot be longer than 50 characters." })
-    username: string;
+  @IsString()
+  @MinLength(1, { message: "Username must be at least 1 character long." })
+  @MaxLength(50, { message: "Username cannot be longer than 50 characters." })
+  username: string;
 
     @IsEmail({}, { message: "Email is invalid" })
     email: string;
@@ -20,10 +26,25 @@ export class RegisterSchema {
 }
 
 export class LoginSchema {
-    @IsEmail({}, { message: "Email is invalid." })
-    email: string;
+  @IsEmail({}, { message: "Email is invalid." })
+  email: string;
 
     @IsString()
     @MinLength(1, { message: "Password must be at least 1 character long." })
     password: string; // Password is required
+}
+
+export class ForgotPasswordSchema {
+  @IsEmail({}, { message: "Email is invalid." })
+  email: string;
+}
+
+export class ResetPasswordSchema {
+  @IsString()
+  @MinLength(1, { message: "Password must be at least 1 character long." })
+  newPassword: string;
+
+  @IsString()
+  @MinLength(1, { message: "Password must be at least 1 character long." })
+  repeatPassword: string;
 }
