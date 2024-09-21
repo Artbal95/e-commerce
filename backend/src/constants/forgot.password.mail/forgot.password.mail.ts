@@ -1,5 +1,5 @@
 const forgotPasswordMail = (sendingLink: string, recipient_name: string) => `
-    Reset password 
+    Recover password 
     <table class="wrapper" width="100%" cellpadding="0" cellspacing="0">
             <td align="center">
                 <table class="main" width="100%" cellpadding="0" cellspacing="0">

@@ -12,7 +12,7 @@ import {
   ResetPasswordSchema,
 } from "../../schema/auth";
 import generateToken from "../../utils/generateToken";
-import sendEmail from "../../services/mail";
+import sendEmail from "../../services/email";
 import { FR_RECOVER_URL } from "../../config/environment";
 import forgotPasswordMail from "../../constants/forgot.password.mail";
 import MailEnum from "../../enums/mail.enum";
@@ -116,38 +116,47 @@ export const forgot = async (
 };
 
 //reset password route
-export const reset = async (
+export const recover = async (
   req: Request<{}, {}, ResetPasswordSchema>,
   res: Response
 ) => {
   const { newPassword, repeatPassword } = req.body;
 
-  if (newPassword === repeatPassword) {
+  if (newPassword !== repeatPassword) {
+    res.status(400).json({ message: "Different passwords!" });
+  } else {
     const hashedPassword = hashSync(newPassword, 10);
 
     const code: any = req.query.code;
-    const verified = jwt.verify(code, TOKEN_SECRET_KEY);
+    try {
+      const verified = jwt.verify(code, TOKEN_SECRET_KEY);
 
-    if (!verified) {
-      res.status(400).json({ message: "Url is expired!" });
-    }
-
-    const decoded = verifyToken(code);
-    if (!decoded || !(typeof decoded !== "string")) {
-      res.status(500).json({ message: "Can not decode the code" });
-    } else {
-      const success = await authUpdateUser({
-        password: hashedPassword,
-        email: decoded.email,
-      });
-
-      if (success.affected === 0) {
-        console.error("No rows were updated, check if the email exists.");
+      if (!verified) {
+        res.status(400).json({ message: "Url is expired!" });
       }
-      if (!success) {
-        res.status(500).json({ message: "Could not update password!" });
+
+      const decoded = verifyToken(code);
+      if (!decoded || !(typeof decoded !== "string")) {
+        res.status(500).json({ message: "Can not decode the code" });
+      } else {
+        const success = await authUpdateUser({
+          password: hashedPassword,
+          email: decoded.email,
+        });
+
+        if (success.affected === 0) {
+          console.error("No rows were updated, check if the email exists.");
+        }
+        if (!success) {
+          res.status(500).json({ message: "Could not update password!" });
+        }
+        res.status(201).json({ message: "Password was successfully updated!" });
       }
-      res.status(201).json({ message: "Password was successfully updated!" });
+    } catch (e: unknown) {
+      const { message } = e as IError;
+      res
+        .status(500)
+        .json({ message: "INTERNAL_SERVER_ERROR", currentMsg: message });
     }
   }
 };

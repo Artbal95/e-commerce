@@ -6,13 +6,13 @@ import {
   RegisterSchema,
   ResetPasswordSchema,
 } from "../../schema/auth";
-import { login, register, forgot, reset } from "../../controllers/auth";
+import { login, register, forgot, recover } from "../../controllers/auth";
 
 const router = express.Router();
 
 router.post("/signup", validationMiddleware(RegisterSchema), register);
 router.post("/signin", validationMiddleware(LoginSchema), login);
 router.post("/forgot", validationMiddleware(ForgotPasswordSchema), forgot);
-router.post("/reset", validationMiddleware(ResetPasswordSchema), reset);
+router.post("/reset", validationMiddleware(ResetPasswordSchema), recover);
 
 export default router;
