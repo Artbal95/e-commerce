@@ -1,5 +1,6 @@
 import AuthEntity from "../../entity/auth";
 import myDataSource from "../../config/db";
+import { UserData } from "types/user.data";
 
 export const authGetUserByEmail = async (email: string) => {
   try {
